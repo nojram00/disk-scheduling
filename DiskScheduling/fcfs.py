@@ -1,11 +1,13 @@
+import plotGraph
+
 def fcfs_disk_scheduling(requests, initial_pos):
     total_head_movements = 0
+
     current_pos = initial_pos
     for request in requests:
         distance = abs(request-current_pos)
         total_head_movements += distance
         current_pos = request
-
     return total_head_movements
 
 
