@@ -1,79 +1,74 @@
-
-
-def scan_disk_scheduling(requests, init_pos, max_cylinder):
-    new_requests = []
-
-    toadd = [init_pos, max_cylinder]
-    for req in requests:
-        new_requests.append(req)
-    for a in toadd:
-        new_requests.append(a)
-    requests_copy = new_requests.copy()
-
-    sorted_requests = sorted(requests_copy)
-
-    initial_index = sorted_requests.index(init_pos)
-
-
-    up = []
-    up = sorted(sorted_requests[:initial_index], reverse=True)
-    down = []
-    down = sorted_requests[initial_index:]
-
-    if init_pos > max_cylinder:
-        direction = "up"
-    elif init_pos < max_cylinder:
-        direction = "down"
-
-    total_head_movement = 0
-    up_requests_movement = 0
-    down_requests_movement = 0
-
+def get_direction(sp, ps):
+    if sp > ps:
+        return "up"
+    else:
+        return "down"
+_s = []
+def scan_disk(sp, requests, direction, disk_size):
+    _s.clear()
+    total_movement = 0
+    wews = [0, sp, disk_size]
+    serving_order = []
+    for w in wews:
+        requests.append(w)
+    # Sort requests based on their positions
+    sorted_requests = sorted(requests)
+    print("1 ", sorted_requests[:sp])
+    current_position = sp
+    # Determine the initial direction
     if direction == "up":
+        direction_multiplier = 1
+    elif direction == "down":
+        direction_multiplier = -1
+    else:
+        raise ValueError("Invalid direction. Please specify 'up' or 'down'.")
 
-        for u in up:
-            distance = abs(u-init_pos)
-            up_requests_movement += distance
-            init_pos = u
+    # print(sorted_requests)
+    # Find the index where the current position would fit
+    insert_index = 0
+    for i in range(len(sorted_requests)):
+        if direction_multiplier * sorted_requests[i] >= direction_multiplier * current_position:
+            insert_index = i
+            break
 
-        for d in down:
-            distance = abs(max_cylinder-d)
-            down_requests_movement += distance
-            max_cylinder = d
+    # Handle requests in the current direction
+    for i in range(insert_index, len(sorted_requests)):
+        movement = abs(current_position - sorted_requests[i])
+        total_movement += movement
+        current_position = sorted_requests[i]
+        serving_order.append(sorted_requests[i])
 
-        set_new_request(up + down)
+    # Handle requests in the opposite direction
+    for i in range(insert_index - 1, -1, -1):
+        movement = abs(current_position - sorted_requests[i])
+        total_movement += movement
+        current_position = sorted_requests[i]
+        serving_order.append(sorted_requests[i])
 
-    if direction == "down":
 
-        for d in down:
-            distance = abs(d-init_pos)
-            down_requests_movement += distance
-            init_pos = d
+    print("1 ", serving_order[:sp])
+    print("2 ", sorted(serving_order[sp:]))
 
-        for u in up:
-            distance = abs(max_cylinder-u)
-            up_requests_movement += distance
-            max_cylinder = u
+    set_serving_order(serving_order[:sp] + sorted(serving_order[sp:], reverse=True))
+    return total_movement
 
-        set_new_request(down + up)
 
-    total_head_movement = up_requests_movement + down_requests_movement
-    return total_head_movement
+def set_serving_order(serving_order):
+    for s in serving_order:
+        _s.append(s)
 
-new_req = []
-def set_new_request(requests):
-    for r in requests:
-        new_req.append(r)
+def get_serving_order():
+    return _s
 
-def get_new_request():
-    return new_req
 
-#[123, 180, 59, 55, 145, 20, 147, 85, 87, 70, 199]
-#[20, 55, 59, 70, 85, 87, 123, 145, 147, 180, 199]
-#[70, 85, 87, 123, 145, 147, 180, 199]
-#[20, 55, 59]
-# 20
-# 55
-# 59
-# [70, 85, 87, 123, 145, 147, 180, 199, 59, 55, 20]
-# [59, 55, 20, 70, 85, 87, 123, 145, 147, 180, 199]
+
+# Example usage
+# current_pos = 50
+# reqs = [98, 183, 37, 122, 14, 124, 65, 67]
+# dir = "up"
+# disk_size = 200
+#
+# total_movement, serving_order = scan_disk(current_pos, reqs, dir, disk_size)
+#
+# print("Total head movement:", total_movement)
+# print("Serving order:", serving_order)

@@ -1,6 +1,8 @@
 
 new_requests = []
 def sstf_disk_algorithm(requests, initial_position):
+    set_new_request(initial_position)
+    new_requests.clear()
     req_copy = requests.copy()
     current_pos = initial_position
     total_head_movement = 0
@@ -15,14 +17,18 @@ def sstf_disk_algorithm(requests, initial_position):
                 min_distance = distance
                 next_req = request
 
-        new_requests.append(next_req)
+
+        set_new_request(next_req)
         total_head_movement += min_distance
         current_pos = next_req
         req_copy.remove(next_req)
 
     return total_head_movement
 
-def return_new_requests():
+def set_new_request(request):
+    new_requests.append(request)
+
+def get_new_request():
     return new_requests
 
 #129 + 179
